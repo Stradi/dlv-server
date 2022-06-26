@@ -1,13 +1,12 @@
-import { Request, Response, Router } from "express";
-import { getVideoInfo } from "../lib/ytdl";
+import { Request, Response, Router } from 'express';
+import { getVideoInfo, VideoData } from '../lib/ytdl';
 
 const router: Router = Router();
 
-router.post("/dl", async (req: Request, res: Response) => {
-  console.log(req.body);
+router.post('/dl', async (req: Request, res: Response) => {
   if (!req.body.url) {
     res.json({
-      error: "No url is provided",
+      error: 'No url is provided',
     });
     return;
   }
@@ -15,7 +14,7 @@ router.post("/dl", async (req: Request, res: Response) => {
   const video = await getVideoInfo(req.body.url as string);
   if (!video) {
     res.json({
-      error: "Video could not found",
+      error: 'Video could not found',
     });
     return;
   }

@@ -1,75 +1,53 @@
-import ytdl, { videoInfo } from "ytdl-core";
+import { format } from 'path';
+import ytdl, { YtFormat, YtResponse, YtThumbnail } from 'youtube-dl-exec';
 
-interface VideoData {
+export interface VideoData {
   id: string;
   title: string;
-  author: string;
-  url: string;
-  thumbnails: Thumbnail[];
+  thumbnails: YtThumbnail[];
   formats: Format[];
+  duration: string;
 }
 
-interface Thumbnail {
+export interface Format {
+  id: string;
+  filesize: number;
   url: string;
-  size: string;
+  resolution: string;
 }
 
-interface Format {
-  type: FormatType;
-  quality: string;
-  container: string;
-  codecs: string;
-  url: string;
-  bitrate: string;
-}
-
-enum FormatType {
-  main,
-  audio,
-  video,
-}
-
-const getVideoInfo = async (url: string): Promise<VideoData> => {
-  let video: videoInfo = <videoInfo>{};
+const getVideoInfo = async (url: string): Promise<VideoData | null> => {
+  let video: YtResponse = <YtResponse>{};
   let videoData: VideoData = <VideoData>{};
 
   try {
-    video = await ytdl.getInfo(url);
+    video = await ytdl(url, {
+      dumpJson: true,
+    });
   } catch (e) {
-    return <VideoData>{};
+    return Promise.resolve(null);
   }
 
-  videoData.id = video.videoDetails.videoId;
-  videoData.url = video.videoDetails.video_url;
-  videoData.title = video.videoDetails.title;
-  videoData.author = video.videoDetails.author.name;
+  videoData.id = video.id;
+  videoData.title = video.title;
+  videoData.thumbnails = video.thumbnails;
+  videoData.formats = video.formats
+    .filter(
+      (format) =>
+        format.vcodec != 'none' &&
+        format.acodec != 'none' &&
+        (format.protocol == 'https' || format.protocol == 'http')
+    )
+    .map((format) => ({
+      id: format.format_id,
+      filesize: format.filesize,
+      resolution: `${format.width}x${format.height}`,
+      url: format.url,
+    }));
 
-  videoData.thumbnails = video.videoDetails.thumbnails.map((thumbnail) => ({
-    url: thumbnail.url,
-    size: `${thumbnail.width}x${thumbnail.height}`,
-  }));
+  videoData.duration = video.duration.toString();
 
-  videoData.formats = video.formats.map((format) => ({
-    type:
-      format.hasVideo && format.hasAudio
-        ? FormatType.main
-        : format.hasVideo
-        ? FormatType.video
-        : FormatType.audio,
-    quality: format.qualityLabel,
-    container: format.container,
-    codecs: format.codecs,
-    url: format.url,
-    bitrate: format.bitrate
-      ? format.bitrate.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")
-      : "Unknown",
-  }));
-
-  videoData.formats = videoData.formats.sort((a: Format, b: Format) =>
-    a.type < b.type ? -1 : a.type > b.type ? 1 : 0
-  );
-
-  return videoData;
+  return Promise.resolve(videoData);
 };
 
 export { getVideoInfo };
