@@ -14,7 +14,7 @@ export interface Format {
   filesize: number;
   url: string;
   resolution: string;
-  hasAudio: boolean;
+  hasVideo: boolean;
 }
 
 const getVideoInfo = async (url: string): Promise<VideoData | null> => {
@@ -46,7 +46,7 @@ const getVideoInfo = async (url: string): Promise<VideoData | null> => {
           ? format.abr.toString()
           : `${format.width}x${format.height}`,
       url: `${format.url}&title=${video.title}`,
-      hasAudio: format.acodec != 'none',
+      hasVideo: format.vcodec != 'none',
     }));
 
   videoData.duration = video.duration.toString();
