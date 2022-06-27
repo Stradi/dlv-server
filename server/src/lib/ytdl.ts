@@ -14,6 +14,7 @@ export interface Format {
   filesize: number;
   url: string;
   resolution: string;
+  hasAudio: boolean;
 }
 
 const getVideoInfo = async (url: string): Promise<VideoData | null> => {
@@ -34,15 +35,18 @@ const getVideoInfo = async (url: string): Promise<VideoData | null> => {
   videoData.formats = video.formats
     .filter(
       (format) =>
-        format.vcodec != 'none' &&
-        format.acodec != 'none' &&
-        (format.protocol == 'https' || format.protocol == 'http')
+        (format.protocol == 'https' || format.protocol == 'http') &&
+        format.acodec != 'none'
     )
     .map((format) => ({
       id: format.format_id,
       filesize: format.filesize,
-      resolution: `${format.width}x${format.height}`,
-      url: format.url,
+      resolution:
+        format.acodec != 'none' && format.vcodec == 'none'
+          ? format.abr.toString()
+          : `${format.width}x${format.height}`,
+      url: `${format.url}&title=${video.title}`,
+      hasAudio: format.acodec != 'none',
     }));
 
   videoData.duration = video.duration.toString();
