@@ -19,8 +19,8 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(cors());
 app.use("/api", router);
-app.get("/heathcheck", (req: Request, res: Response) => {
-  res.send("All good!").status(200);
+app.get("/healthcheck", (req: Request, res: Response) => {
+  res.status(200).send("OK");
 });
 
 app.listen(PORT, () => {
