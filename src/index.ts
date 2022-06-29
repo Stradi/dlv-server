@@ -1,9 +1,9 @@
-import bodyParser from 'body-parser';
-import dotenv from 'dotenv';
-import express, { Express } from 'express';
-import cors from 'cors';
+import bodyParser from "body-parser";
+import cors from "cors";
+import dotenv from "dotenv";
+import express, { Express, Request, Response } from "express";
 
-import router from './routes';
+import router from "./routes";
 
 dotenv.config();
 
@@ -18,7 +18,10 @@ app.use(
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(cors());
-app.use('/api', router);
+app.use("/api", router);
+app.get("/heathcheck", (req: Request, res: Response) => {
+  res.send("All good!").status(200);
+});
 
 app.listen(PORT, () => {
   console.log(
