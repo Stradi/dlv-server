@@ -2,8 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 
 const cors = (req: Request, res: Response, next: NextFunction) => {
   const whitelist = [
-    `https://${process.env.HOSTNAME}`,
-    `https://www.${process.env.HOSTNAME}`,
+    `https://${process.env.DOMAINNAME}`,
+    `https://www.${process.env.DOMAINNAME}`,
   ];
 
   if (!req.headers.origin || whitelist.indexOf(req.headers.origin) === -1) {
