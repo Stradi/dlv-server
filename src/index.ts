@@ -1,20 +1,25 @@
-import bodyParser from "body-parser";
-import dotenv from "dotenv";
-import express, { Express, Request, Response } from "express";
-import path from "path";
+import bodyParser from 'body-parser';
+import dotenv from 'dotenv';
+import express, { Express, Request, Response } from 'express';
+import path from 'path';
 
-import cors from "./middlewares/cors";
-import router from "./routes";
+import cors from './middlewares/cors';
+import router from './routes';
+import { createLogFolder, getWriteStream } from './utils/log';
+import { generalLogger, ytdlLogger } from './middlewares/logger';
 
 dotenv.config({
-  path: path.join(__dirname, "..", ".env"),
+  path: path.join(__dirname, '..', '.env'),
 });
-
-console.log();
-console.log(process.env.HOSTNAME);
 
 const PORT = process.env.PORT || 3000;
 const app: Express = express();
+
+createLogFolder();
+const serverLogStream = getWriteStream('server');
+const ytdlLogStream = getWriteStream('ytdl');
+
+app.use(generalLogger(serverLogStream));
 
 app.use(
   bodyParser.urlencoded({
@@ -24,9 +29,9 @@ app.use(
 app.use(bodyParser.json());
 app.use(express.json());
 
-app.use("/api", router);
-app.get("/healthcheck", cors, (req: Request, res: Response) => {
-  res.status(200).send("OK");
+app.use('/api', ytdlLogger(ytdlLogStream), cors, router);
+app.get('/healthcheck', (req: Request, res: Response) => {
+  res.status(200).send('OK');
 });
 
 app.listen(PORT, () => {

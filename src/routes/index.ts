@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { getVideoInfo, VideoData } from '../lib/ytdl';
+import { getVideoInfo } from '../lib/ytdl';
 
 const router: Router = Router();
 
