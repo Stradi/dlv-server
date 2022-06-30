@@ -1,13 +1,19 @@
 import bodyParser from "body-parser";
-import cors from "cors";
 import dotenv from "dotenv";
 import express, { Express, Request, Response } from "express";
+import path from "path";
 
+import cors from "./middlewares/cors";
 import router from "./routes";
 
-dotenv.config();
+dotenv.config({
+  path: path.join(__dirname, "..", ".env"),
+});
 
-const PORT = process.env.PORT || 8080;
+console.log();
+console.log(process.env.HOSTNAME);
+
+const PORT = process.env.PORT || 3000;
 const app: Express = express();
 
 app.use(
@@ -17,9 +23,9 @@ app.use(
 );
 app.use(bodyParser.json());
 app.use(express.json());
-app.use(cors());
+
 app.use("/api", router);
-app.get("/healthcheck", (req: Request, res: Response) => {
+app.get("/healthcheck", cors, (req: Request, res: Response) => {
   res.status(200).send("OK");
 });
 
