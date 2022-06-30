@@ -2,8 +2,8 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import express, { Express, Request, Response } from 'express';
 import path from 'path';
+import cors from 'cors';
 
-import cors from './middlewares/cors';
 import router from './routes';
 import { createLogFolder, getWriteStream } from './utils/log';
 import { generalLogger, ytdlLogger } from './middlewares/logger';
@@ -29,7 +29,14 @@ app.use(
 app.use(bodyParser.json());
 app.use(express.json());
 
-app.use('/api', ytdlLogger(ytdlLogStream), cors, router);
+app.use(
+  '/api',
+  ytdlLogger(ytdlLogStream),
+  cors({
+    origin: `https://www.${process.env.DOMAINNAME}`,
+  }),
+  router
+);
 app.get('/healthcheck', (req: Request, res: Response) => {
   res.status(200).send('OK');
 });
