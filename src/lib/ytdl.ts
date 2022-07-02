@@ -45,7 +45,7 @@ const getVideoInfo = async (url: string): Promise<VideoData | null> => {
         format.acodec != 'none' && format.vcodec == 'none'
           ? format.abr.toString()
           : `${format.width}x${format.height}`,
-      url: `${format.url}&title=${video.title}`,
+      url: `${format.url}`,
       hasVideo: format.vcodec != 'none',
     }));
 
